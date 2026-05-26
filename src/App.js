@@ -14,6 +14,7 @@ export default function App() {
   const [editGame, setEditGame] = useState(null);
   const [filters, setFilters] = useState({ status: 'all', franchise: 'all', platform: 'all', search: '' });
   const [autoProgress, setAutoProgress] = useState(null);
+  const [trophySync, setTrophySync] = useState(null); // null | 'syncing' | { updated, total, error }
 
   const fetchGames = useCallback(async () => {
     setLoading(true);
@@ -62,6 +63,19 @@ export default function App() {
     setModalOpen(true);
   };
 
+  const handleSyncTrophies = async () => {
+    setTrophySync('syncing');
+    const { data, error } = await supabase.functions.invoke('sync-psn-trophies');
+    if (error || data?.error) {
+      setTrophySync({ error: error?.message || data?.error });
+      setTimeout(() => setTrophySync(null), 5000);
+    } else {
+      setTrophySync({ updated: data.updated, total: data.totalPsn });
+      fetchGames();
+      setTimeout(() => setTrophySync(null), 4000);
+    }
+  };
+
   const handleAutoCovers = async () => {
     const missing = games.filter(g => !g.cover_url);
     if (missing.length === 0) {
@@ -103,6 +117,20 @@ export default function App() {
             </div>
           </div>
           <div className="header-actions">
+            <button
+              className="btn-sync-trophies"
+              onClick={handleSyncTrophies}
+              disabled={trophySync === 'syncing' || loading}
+              title="Sincronizza trofei PSN da Toshi-_-"
+            >
+              {trophySync === 'syncing'
+                ? '🏆 Sync...'
+                : trophySync?.error
+                  ? '❌ Errore'
+                  : trophySync?.updated != null
+                    ? `✅ ${trophySync.updated} sync`
+                    : '🏆 Sync Trofei'}
+            </button>
             <button
               className="btn-auto-cover"
               onClick={handleAutoCovers}

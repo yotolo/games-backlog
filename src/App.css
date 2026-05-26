@@ -101,6 +101,31 @@ body {
   gap: 10px;
 }
 
+.btn-sync-trophies {
+  background: var(--surface2);
+  color: var(--yellow);
+  border: 1px solid rgba(250,204,21,0.3);
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-sync-trophies:hover:not(:disabled) {
+  border-color: var(--yellow);
+  background: rgba(250,204,21,0.1);
+}
+
+.btn-sync-trophies:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-auto-cover {
   background: var(--surface2);
   color: var(--text-muted);
@@ -826,6 +851,7 @@ body {
   .header-logo p { display: none; }
   .btn-add { padding: 8px 14px; font-size: 14px; letter-spacing: 0.5px; }
   .btn-auto-cover { padding: 8px 10px; font-size: 13px; }
+  .btn-sync-trophies { padding: 8px 10px; font-size: 13px; }
 
   /* Stats bar */
   .stats-bar { flex-direction: column; padding: 12px 14px; gap: 10px; align-items: stretch; }
