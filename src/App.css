@@ -95,6 +95,69 @@ body {
   box-shadow: 0 4px 30px var(--accent-glow);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-auto-cover {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-auto-cover:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.btn-auto-cover:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* AUTO-COVER PROGRESS BANNER */
+.auto-cover-banner {
+  position: relative;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.auto-cover-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(124,58,237,0.25), rgba(124,58,237,0.1));
+  border-right: 2px solid var(--accent);
+  transition: width 0.4s ease;
+}
+
+.auto-cover-label {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* STATS BAR */
 .stats-bar {
   background: var(--surface);
@@ -762,6 +825,7 @@ body {
   .header-logo h1 { font-size: 20px; letter-spacing: 2px; }
   .header-logo p { display: none; }
   .btn-add { padding: 8px 14px; font-size: 14px; letter-spacing: 0.5px; }
+  .btn-auto-cover { padding: 8px 10px; font-size: 13px; }
 
   /* Stats bar */
   .stats-bar { flex-direction: column; padding: 12px 14px; gap: 10px; align-items: stretch; }

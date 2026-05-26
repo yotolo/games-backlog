@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from './lib/supabase';
+import { searchGameCovers } from './lib/igdb';
 import GameGrid from './components/GameGrid';
 import GameModal from './components/GameModal';
 import StatsBar from './components/StatsBar';
@@ -12,6 +13,7 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editGame, setEditGame] = useState(null);
   const [filters, setFilters] = useState({ status: 'all', franchise: 'all', platform: 'all', search: '' });
+  const [autoProgress, setAutoProgress] = useState(null);
 
   const fetchGames = useCallback(async () => {
     setLoading(true);
@@ -60,6 +62,35 @@ export default function App() {
     setModalOpen(true);
   };
 
+  const handleAutoCovers = async () => {
+    const missing = games.filter(g => !g.cover_url);
+    if (missing.length === 0) {
+      alert('Tutti i giochi hanno già una copertina!');
+      return;
+    }
+    if (!window.confirm(`Cerca copertine automaticamente per ${missing.length} giochi senza immagine?`)) return;
+
+    let updated = 0;
+    setAutoProgress({ done: 0, total: missing.length, current: missing[0].title });
+
+    for (let i = 0; i < missing.length; i++) {
+      const game = missing[i];
+      setAutoProgress({ done: i, total: missing.length, current: game.title });
+
+      const results = await searchGameCovers(game.title);
+      if (results.length > 0 && results[0].cover) {
+        await supabase.from('games').update({ cover_url: results[0].cover }).eq('id', game.id);
+        updated++;
+      }
+
+      if (i < missing.length - 1) await new Promise(r => setTimeout(r, 300));
+    }
+
+    setAutoProgress(null);
+    fetchGames();
+    alert(`✅ Aggiornate ${updated} copertine su ${missing.length}!`);
+  };
+
   return (
     <div className="app">
       <header className="header">
@@ -71,11 +102,28 @@ export default function App() {
               <p>Alessio's Backlog</p>
             </div>
           </div>
-          <button className="btn-add" onClick={() => { setEditGame(null); setModalOpen(true); }}>
-            + Aggiungi Gioco
-          </button>
+          <div className="header-actions">
+            <button
+              className="btn-auto-cover"
+              onClick={handleAutoCovers}
+              disabled={!!autoProgress || loading}
+              title="Scarica automaticamente le copertine mancanti"
+            >
+              {autoProgress ? `🖼 ${autoProgress.done}/${autoProgress.total}` : '🖼 Auto-cover'}
+            </button>
+            <button className="btn-add" onClick={() => { setEditGame(null); setModalOpen(true); }}>
+              + Aggiungi Gioco
+            </button>
+          </div>
         </div>
       </header>
+
+      {autoProgress && (
+        <div className="auto-cover-banner">
+          <div className="auto-cover-bar" style={{ width: `${(autoProgress.done / autoProgress.total) * 100}%` }} />
+          <span className="auto-cover-label">🖼 {autoProgress.current} — {autoProgress.done}/{autoProgress.total}</span>
+        </div>
+      )}
 
       <StatsBar games={games} />
 
