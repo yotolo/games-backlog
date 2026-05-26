@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import { searchGameCovers } from './lib/igdb';
 import GameGrid from './components/GameGrid';
 import GameModal from './components/GameModal';
+import SyncReviewModal from './components/SyncReviewModal';
 import StatsBar from './components/StatsBar';
 import FilterBar from './components/FilterBar';
 import './App.css';
@@ -15,6 +16,8 @@ export default function App() {
   const [filters, setFilters] = useState({ status: 'all', franchise: 'all', platform: 'all', search: '' });
   const [autoProgress, setAutoProgress] = useState(null);
   const [trophySync, setTrophySync] = useState(null); // null | 'syncing' | { updated, total, error }
+  const [syncResult, setSyncResult] = useState(null);
+  const [syncReviewOpen, setSyncReviewOpen] = useState(false);
 
   const fetchGames = useCallback(async () => {
     setLoading(true);
@@ -71,6 +74,8 @@ export default function App() {
       setTimeout(() => setTrophySync(null), 5000);
     } else {
       setTrophySync({ updated: data.updated, total: data.totalPsn });
+      setSyncResult(data);
+      setSyncReviewOpen(true);
       fetchGames();
       setTimeout(() => setTrophySync(null), 4000);
     }
@@ -131,6 +136,13 @@ export default function App() {
                     ? `✅ ${trophySync.updated} sync`
                     : '🏆 Sync Trofei'}
             </button>
+            {syncResult && (
+              <button
+                className="btn-review-sync"
+                onClick={() => setSyncReviewOpen(true)}
+                title="Revisiona match e assegna non trovati"
+              >🔍 Revisiona</button>
+            )}
             <button
               className="btn-auto-cover"
               onClick={handleAutoCovers}
@@ -181,6 +193,15 @@ export default function App() {
           game={editGame}
           onSave={handleSave}
           onClose={() => { setModalOpen(false); setEditGame(null); }}
+        />
+      )}
+
+      {syncReviewOpen && syncResult && (
+        <SyncReviewModal
+          syncResult={syncResult}
+          games={games}
+          onClose={() => setSyncReviewOpen(false)}
+          onRefresh={fetchGames}
         />
       )}
     </div>

@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
     const { data: games } = await supabase.from("games").select("id, title");
 
     const matched: { psn: string; game: string; progress: number }[] = [];
-    const unmatched: string[] = [];
+    const unmatched: { title: string; progress: number }[] = [];
 
     for (const t of trophyTitles) {
       const psnTitle: string = t.trophyTitleName ?? "";
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
           .eq("id", game.id);
         matched.push({ psn: psnTitle, game: game.title, progress });
       } else {
-        unmatched.push(psnTitle);
+        unmatched.push({ title: psnTitle, progress });
       }
     }
 
