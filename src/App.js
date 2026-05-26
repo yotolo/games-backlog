@@ -129,19 +129,19 @@ export default function App() {
               title="Sincronizza trofei PSN da Toshi-_-"
             >
               {trophySync === 'syncing'
-                ? '🏆 Sync...'
+                ? <>🏆 <span className="btn-label">Sync...</span></>
                 : trophySync?.error
-                  ? '❌ Errore'
+                  ? <>❌ <span className="btn-label">Errore</span></>
                   : trophySync?.updated != null
-                    ? `✅ ${trophySync.updated} sync`
-                    : '🏆 Sync Trofei'}
+                    ? <>✅ <span className="btn-label">{trophySync.updated} sync</span></>
+                    : <>🏆 <span className="btn-label"> Sync Trofei</span></>}
             </button>
             {syncResult && (
               <button
                 className="btn-review-sync"
                 onClick={() => setSyncReviewOpen(true)}
                 title="Revisiona match e assegna non trovati"
-              >🔍 Revisiona</button>
+              >🔍 <span className="btn-label">Revisiona</span></button>
             )}
             <button
               className="btn-auto-cover"
@@ -149,10 +149,12 @@ export default function App() {
               disabled={!!autoProgress || loading}
               title="Scarica automaticamente le copertine mancanti"
             >
-              {autoProgress ? `🖼 ${autoProgress.done}/${autoProgress.total}` : '🖼 Auto-cover'}
+              {autoProgress
+                ? `🖼 ${autoProgress.done}/${autoProgress.total}`
+                : <>🖼 <span className="btn-label"> Auto-cover</span></>}
             </button>
             <button className="btn-add" onClick={() => { setEditGame(null); setModalOpen(true); }}>
-              + Aggiungi Gioco
+              <span className="btn-icon">+</span><span className="btn-label"> Aggiungi Gioco</span>
             </button>
           </div>
         </div>

@@ -19,6 +19,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body { overflow-x: hidden; }
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -1105,9 +1107,15 @@ body {
   .header-logo { gap: 10px; }
   .header-logo h1 { font-size: 20px; letter-spacing: 2px; }
   .header-logo p { display: none; }
-  .btn-add { padding: 8px 14px; font-size: 14px; letter-spacing: 0.5px; }
-  .btn-auto-cover { padding: 8px 10px; font-size: 13px; }
-  .btn-sync-trophies { padding: 8px 10px; font-size: 13px; }
+
+  /* Icon-only buttons on mobile */
+  .btn-label { display: none; }
+  .btn-icon { font-size: 18px; line-height: 1; }
+  .btn-add { padding: 8px 10px; font-size: 16px; letter-spacing: 0; }
+  .btn-auto-cover { padding: 8px 10px; font-size: 16px; }
+  .btn-sync-trophies { padding: 8px 10px; font-size: 16px; }
+  .btn-review-sync { padding: 8px 10px; font-size: 16px; }
+  .header-actions { gap: 6px; }
 
   /* Stats bar */
   .stats-bar { flex-direction: column; padding: 12px 14px; gap: 10px; align-items: stretch; }
