@@ -1,0 +1,9 @@
+{
+  "short_name": "Game Vault",
+  "name": "Alessio's Game Vault",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0d0d1a",
+  "background_color": "#0d0d1a"
+}
