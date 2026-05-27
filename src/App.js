@@ -63,28 +63,62 @@ function VaultApp() {
     try {
       await supabase.from('games').update({ user_id: userId }).is('user_id', null);
     } catch (e) {
-      console.warn('Auto-claim skipped:', e);
+      console.warn('[Auth] claimUnownedGames skipped:', e);
     }
   }, []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // IMPORTANT: keep this callback synchronous.
-        // Awaiting inside onAuthStateChange causes a Supabase v2 deadlock:
-        // the client waits for the callback to return before settling the
-        // auth state, while any awaited DB call needs a settled auth state
-        // for RLS — so the spinner freezes forever.
+    let mounted = true;
+
+    // ── Layer 1: getSession() ──────────────────────────────────────────────
+    // Primary initializer. Reads from localStorage immediately if the token
+    // is still valid; does one network refresh if expired. Always resolves —
+    // unlike INITIAL_SESSION from onAuthStateChange, which can stall when a
+    // refresh round-trip is in flight, leaving authLoading stuck forever.
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        console.log('[Auth] getSession:', session ? session.user.email : 'no session');
         setSession(session);
         setAuthLoading(false);
+        if (session) claimUnownedGames(session.user.id);
+      })
+      .catch(err => {
+        if (!mounted) return;
+        console.error('[Auth] getSession error:', err);
+        setAuthLoading(false);
+      });
 
-        // Claim unowned games in the background (fire-and-forget).
-        if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+    // ── Layer 2: onAuthStateChange ────────────────────────────────────────
+    // Keeps session in sync after the initial load: sign-in, sign-out,
+    // token refresh, OAuth redirect. Also calls setAuthLoading(false) as a
+    // belt-and-suspenders in case it fires before getSession resolves.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return;
+        console.log('[Auth] event:', event, session?.user?.email ?? '—');
+        setSession(session);
+        setAuthLoading(false);
+        if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
           claimUnownedGames(session.user.id);
         }
       }
     );
-    return () => subscription.unsubscribe();
+
+    // ── Layer 3: safety timeout ────────────────────────────────────────────
+    // If both getSession and onAuthStateChange stall (e.g. no network),
+    // unblock after 5 s so the user sees the login page instead of a spinner.
+    const timeout = setTimeout(() => {
+      if (!mounted) return;
+      console.warn('[Auth] 5 s timeout — forcing authLoading false');
+      setAuthLoading(false);
+    }, 5000);
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [claimUnownedGames]);
 
   // App state
