@@ -69,12 +69,19 @@ function VaultApp() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-          await claimUnownedGames(session.user.id);
-        }
+      (event, session) => {
+        // IMPORTANT: keep this callback synchronous.
+        // Awaiting inside onAuthStateChange causes a Supabase v2 deadlock:
+        // the client waits for the callback to return before settling the
+        // auth state, while any awaited DB call needs a settled auth state
+        // for RLS — so the spinner freezes forever.
         setSession(session);
         setAuthLoading(false);
+
+        // Claim unowned games in the background (fire-and-forget).
+        if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+          claimUnownedGames(session.user.id);
+        }
       }
     );
     return () => subscription.unsubscribe();
@@ -94,13 +101,19 @@ function VaultApp() {
   const fetchGames = useCallback(async () => {
     if (!session) { setGames([]); return; }
     setLoading(true);
-    const { data, error } = await supabase
-      .from('games')
-      .select('*')
-      .order('franchise', { ascending: true })
-      .order('title',    { ascending: true });
-    if (!error) setGames(data || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('games')
+        .select('*')
+        .order('franchise', { ascending: true })
+        .order('title',    { ascending: true });
+      if (error) console.error('fetchGames error:', error);
+      else setGames(data || []);
+    } catch (e) {
+      console.error('fetchGames exception:', e);
+    } finally {
+      setLoading(false);
+    }
   }, [session]);
 
   useEffect(() => { fetchGames(); }, [fetchGames]);
