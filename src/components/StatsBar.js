@@ -1,17 +1,20 @@
 import React from 'react';
-
-const STATUS_LABELS = {
-  done: { label: 'Completati', color: '#4ade80', emoji: '✅' },
-  in_progress: { label: 'In corso', color: '#facc15', emoji: '🎮' },
-  to_start: { label: 'Da iniziare', color: '#60a5fa', emoji: '🔜' },
-  backlog: { label: 'Backlog', color: '#a78bfa', emoji: '📦' },
-};
+import { useT } from '../lib/i18n';
 
 export default function StatsBar({ games }) {
+  const { t } = useT();
+
   const total = games.length;
   const counts = { done: 0, in_progress: 0, to_start: 0, backlog: 0 };
   games.forEach(g => { if (counts[g.status] !== undefined) counts[g.status]++; });
   const pct = total > 0 ? Math.round((counts.done / total) * 100) : 0;
+
+  const STATUS_LABELS = [
+    { key: 'done',        label: t('stats.done'),       color: '#4ade80', emoji: '✅' },
+    { key: 'in_progress', label: t('stats.inProgress'), color: '#facc15', emoji: '🎮' },
+    { key: 'to_start',    label: t('stats.toStart'),    color: '#60a5fa', emoji: '🔜' },
+    { key: 'backlog',     label: t('stats.backlog'),    color: '#a78bfa', emoji: '📦' },
+  ];
 
   return (
     <div className="stats-bar">
@@ -31,13 +34,13 @@ export default function StatsBar({ games }) {
           <span>{pct}%</span>
         </div>
         <div className="completion-info">
-          <strong>{total} giochi</strong>
-          <span>nel vault</span>
+          <strong>{t('stats.games', { n: total })}</strong>
+          <span>{t('stats.inVault')}</span>
         </div>
       </div>
 
       <div className="stats-grid">
-        {Object.entries(STATUS_LABELS).map(([key, { label, color, emoji }]) => (
+        {STATUS_LABELS.map(({ key, label, color, emoji }) => (
           <div className="stat-card" key={key} style={{ borderColor: color }}>
             <span className="stat-emoji">{emoji}</span>
             <span className="stat-count" style={{ color }}>{counts[key]}</span>

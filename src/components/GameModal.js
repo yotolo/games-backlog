@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { searchGameCovers } from '../lib/igdb';
+import { useT } from '../lib/i18n';
 
 const PLATFORMS = ['PS1', 'PS2', 'PS3', 'PS4', 'PS5', 'PSVR2', 'PC', 'Switch', 'Xbox'];
-const STATUSES = [
-  { value: 'done', label: '✅ Completato' },
-  { value: 'in_progress', label: '🎮 In corso' },
-  { value: 'to_start', label: '🔜 Da iniziare' },
-  { value: 'backlog', label: '📦 Backlog' },
-];
 
 const DEFAULT_FORM = {
   title: '', franchise: '', platform: [],
@@ -17,12 +12,20 @@ const DEFAULT_FORM = {
 };
 
 export default function GameModal({ game, onSave, onClose }) {
+  const { t } = useT();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [coverSearch, setCoverSearch] = useState('');
   const [coverResults, setCoverResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const STATUSES = [
+    { value: 'done',        label: t('modal.sDone') },
+    { value: 'in_progress', label: t('modal.sInProgress') },
+    { value: 'to_start',    label: t('modal.sToStart') },
+    { value: 'backlog',     label: t('modal.sBacklog') },
+  ];
 
   useEffect(() => {
     if (game) setForm({ ...DEFAULT_FORM, ...game });
@@ -75,7 +78,7 @@ export default function GameModal({ game, onSave, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{game ? '✏️ Modifica Gioco' : '➕ Nuovo Gioco'}</h2>
+          <h2>{game ? t('modal.editTitle') : t('modal.newTitle')}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
@@ -92,16 +95,16 @@ export default function GameModal({ game, onSave, onClose }) {
 
             {/* Cover search */}
             <div className="cover-search-section">
-              <p className="section-label">🔍 Cerca copertina online</p>
+              <p className="section-label">{t('modal.coverSearch')}</p>
               <div className="cover-search-input">
                 <input
                   value={coverSearch}
                   onChange={e => setCoverSearch(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCoverSearch()}
-                  placeholder="Nome gioco..."
+                  placeholder={t('modal.coverPh')}
                 />
                 <button onClick={handleCoverSearch} disabled={searching}>
-                  {searching ? '...' : 'Cerca'}
+                  {searching ? '...' : t('modal.search')}
                 </button>
               </div>
 
@@ -120,9 +123,9 @@ export default function GameModal({ game, onSave, onClose }) {
                 </div>
               )}
 
-              <p className="section-label" style={{ marginTop: 12 }}>📁 Oppure carica manualmente</p>
+              <p className="section-label" style={{ marginTop: 12 }}>{t('modal.uploadLabel')}</p>
               <label className="upload-btn">
-                {uploading ? 'Caricamento...' : '📤 Scegli file'}
+                {uploading ? t('modal.uploading') : t('modal.chooseFile')}
                 <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
               </label>
             </div>
@@ -130,25 +133,25 @@ export default function GameModal({ game, onSave, onClose }) {
 
           <div className="modal-right">
             <div className="form-group">
-              <label>Titolo *</label>
+              <label>{t('modal.titleLabel')}</label>
               <input
                 value={form.title}
                 onChange={e => set('title', e.target.value)}
-                placeholder="Nome del gioco"
+                placeholder={t('modal.titlePh')}
               />
             </div>
 
             <div className="form-group">
-              <label>Saga / Franchise</label>
+              <label>{t('modal.franchiseLabel')}</label>
               <input
                 value={form.franchise || ''}
                 onChange={e => set('franchise', e.target.value)}
-                placeholder="es. Assassin's Creed"
+                placeholder={t('modal.franchisePh')}
               />
             </div>
 
             <div className="form-group">
-              <label>Stato</label>
+              <label>{t('modal.statusLabel')}</label>
               <select value={form.status} onChange={e => set('status', e.target.value)}>
                 {STATUSES.map(s => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -157,7 +160,7 @@ export default function GameModal({ game, onSave, onClose }) {
             </div>
 
             <div className="form-group">
-              <label>Piattaforme</label>
+              <label>{t('modal.platformsLabel')}</label>
               <div className="platform-toggles">
                 {PLATFORMS.map(p => (
                   <button
@@ -174,7 +177,7 @@ export default function GameModal({ game, onSave, onClose }) {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Valutazione</label>
+                <label>{t('modal.ratingLabel')}</label>
                 <div className="rating-stars">
                   {[1, 2, 3, 4, 5].map(n => (
                     <button
@@ -188,7 +191,7 @@ export default function GameModal({ game, onSave, onClose }) {
               </div>
 
               <div className="form-group">
-                <label>Trofei %</label>
+                <label>{t('modal.trophiesLabel')}</label>
                 <input
                   type="number"
                   min="0" max="100"
@@ -200,21 +203,21 @@ export default function GameModal({ game, onSave, onClose }) {
             </div>
 
             <div className="form-group">
-              <label>Anno completamento</label>
+              <label>{t('modal.yearLabel')}</label>
               <input
                 type="number"
                 value={form.year_completed ?? ''}
                 onChange={e => set('year_completed', e.target.value ? parseInt(e.target.value) : null)}
-                placeholder="es. 2024"
+                placeholder={t('modal.yearPh')}
               />
             </div>
 
             <div className="form-group">
-              <label>Note personali</label>
+              <label>{t('modal.notesLabel')}</label>
               <textarea
                 value={form.notes || ''}
                 onChange={e => set('notes', e.target.value)}
-                placeholder="Commenti, impressioni..."
+                placeholder={t('modal.notesPh')}
                 rows={3}
               />
             </div>
@@ -222,9 +225,9 @@ export default function GameModal({ game, onSave, onClose }) {
         </div>
 
         <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>Annulla</button>
+          <button className="btn-cancel" onClick={onClose}>{t('modal.cancel')}</button>
           <button className="btn-save" onClick={handleSubmit} disabled={saving || !form.title.trim()}>
-            {saving ? 'Salvataggio...' : game ? '💾 Salva modifiche' : '➕ Aggiungi gioco'}
+            {saving ? t('modal.saving') : game ? t('modal.saveChanges') : t('modal.addGame')}
           </button>
         </div>
       </div>

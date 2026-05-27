@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useT } from '../lib/i18n';
 
 export default function AuthPage() {
+  const { t, lang, setLang } = useT();
   const [tab, setTab]           = useState('login');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +25,7 @@ export default function AuthPage() {
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) setError(error.message);
-      else setSuccess('Controlla la tua email per il link di conferma!');
+      else setSuccess(t('auth.confirmEmail'));
     }
     setLoading(false);
   };
@@ -40,18 +42,27 @@ export default function AuthPage() {
   return (
     <div className="auth-page">
       <div className="auth-glow" />
+
+      <button
+        className="btn-lang auth-lang-toggle"
+        onClick={() => setLang(lang === 'en' ? 'it' : 'en')}
+        title="Change language"
+      >
+        {lang === 'en' ? '🇮🇹' : '🇬🇧'}
+      </button>
+
       <div className="auth-content">
 
         <div className="auth-logo">
           <span className="auth-logo-icon">🎮</span>
           <h1 className="auth-logo-title">GAME VAULT</h1>
-          <p className="auth-logo-sub">Alessio's Backlog</p>
+          <p className="auth-logo-sub">{t('app.tagline')}</p>
         </div>
 
         <div className="auth-card">
           <div className="auth-tabs">
-            <button className={`auth-tab ${tab === 'login'    ? 'active' : ''}`} onClick={() => switchTab('login')}>Accedi</button>
-            <button className={`auth-tab ${tab === 'register' ? 'active' : ''}`} onClick={() => switchTab('register')}>Registrati</button>
+            <button className={`auth-tab ${tab === 'login'    ? 'active' : ''}`} onClick={() => switchTab('login')}>{t('auth.signIn')}</button>
+            <button className={`auth-tab ${tab === 'register' ? 'active' : ''}`} onClick={() => switchTab('register')}>{t('auth.signUp')}</button>
           </div>
 
           <div className="auth-card-body">
@@ -60,34 +71,34 @@ export default function AuthPage() {
 
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="form-group">
-                <label>Email</label>
+                <label>{t('auth.email')}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
+                  placeholder={t('auth.emailPh')}
                   required
                   autoComplete="email"
                 />
               </div>
               <div className="form-group">
-                <label>Password</label>
+                <label>{t('auth.password')}</label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPh')}
                   required
                   autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                   minLength={6}
                 />
               </div>
               <button type="submit" className="btn-save auth-submit" disabled={loading}>
-                {loading ? '...' : tab === 'login' ? 'Accedi' : 'Crea account'}
+                {loading ? '...' : tab === 'login' ? t('auth.signInBtn') : t('auth.createBtn')}
               </button>
             </form>
 
-            <div className="auth-divider"><span>oppure</span></div>
+            <div className="auth-divider"><span>{t('auth.or')}</span></div>
 
             <button className="btn-google" onClick={handleGoogle} type="button">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -96,12 +107,12 @@ export default function AuthPage() {
                 <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
                 <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
               </svg>
-              Continua con Google
+              {t('auth.google')}
             </button>
           </div>
         </div>
 
-        <p className="auth-footer">Game Vault · Il tuo backlog personale</p>
+        <p className="auth-footer">{t('auth.footer')}</p>
       </div>
     </div>
   );

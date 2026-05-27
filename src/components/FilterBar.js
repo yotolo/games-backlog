@@ -1,14 +1,17 @@
 import React from 'react';
-
-const STATUSES = [
-  { value: 'all', label: '🎯 Tutti' },
-  { value: 'done', label: '✅ Completati' },
-  { value: 'in_progress', label: '🎮 In corso' },
-  { value: 'to_start', label: '🔜 Da iniziare' },
-  { value: 'backlog', label: '📦 Backlog' },
-];
+import { useT } from '../lib/i18n';
 
 export default function FilterBar({ filters, setFilters, franchises, platforms, total }) {
+  const { t } = useT();
+
+  const STATUSES = [
+    { value: 'all',         label: t('filter.all') },
+    { value: 'done',        label: t('filter.done') },
+    { value: 'in_progress', label: t('filter.inProgress') },
+    { value: 'to_start',    label: t('filter.toStart') },
+    { value: 'backlog',     label: t('filter.backlog') },
+  ];
+
   return (
     <div className="filter-bar">
       <div className="filter-row-1">
@@ -16,12 +19,12 @@ export default function FilterBar({ filters, setFilters, franchises, platforms, 
           <span className="search-icon">🔍</span>
           <input
             type="text"
-            placeholder="Cerca un gioco..."
+            placeholder={t('filter.search')}
             value={filters.search}
             onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
           />
         </div>
-        <div className="filter-count">{total} giochi</div>
+        <div className="filter-count">{t('filter.count', { n: total })}</div>
       </div>
 
       <div className="filter-chips">
@@ -42,20 +45,16 @@ export default function FilterBar({ filters, setFilters, franchises, platforms, 
             value={filters.franchise}
             onChange={e => setFilters(f => ({ ...f, franchise: e.target.value }))}
           >
-            <option value="all">📁 Tutte le saghe</option>
-            {franchises.map(f => (
-              <option key={f} value={f}>{f}</option>
-            ))}
+            <option value="all">{t('filter.allFranchises')}</option>
+            {franchises.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
 
           <select
             value={filters.platform}
             onChange={e => setFilters(f => ({ ...f, platform: e.target.value }))}
           >
-            <option value="all">🕹️ Tutte le piattaforme</option>
-            {platforms.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
+            <option value="all">{t('filter.allPlatforms')}</option>
+            {platforms.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useT } from '../lib/i18n';
 
 function normalize(s) {
   return s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -16,6 +17,7 @@ function isSuspicious(psn, game) {
 }
 
 export default function SyncReviewModal({ syncResult, games, onClose, onRefresh }) {
+  const { t } = useT();
   const [tab, setTab] = useState('matches');
   const [search, setSearch] = useState('');
   const [manualMap, setManualMap] = useState({});
@@ -56,7 +58,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal-sync" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🏆 Revisione Sync Trofei</h2>
+          <h2>{t('sync.title')}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
@@ -65,14 +67,14 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
             className={`sync-tab ${tab === 'matches' ? 'active' : ''}`}
             onClick={() => { setTab('matches'); setSearch(''); }}
           >
-            ✅ Match <span className="sync-tab-count">{matched.length}</span>
+            {t('sync.matchesTab')} <span className="sync-tab-count">{matched.length}</span>
             {suspicious.length > 0 && <span className="sync-tab-warn">⚠️ {suspicious.length}</span>}
           </button>
           <button
             className={`sync-tab ${tab === 'unmatched' ? 'active' : ''}`}
             onClick={() => { setTab('unmatched'); setSearch(''); }}
           >
-            ❓ Non trovati <span className="sync-tab-count">{unmatched.length}</span>
+            {t('sync.unmatchedTab')} <span className="sync-tab-count">{unmatched.length}</span>
           </button>
         </div>
 
@@ -80,7 +82,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
           <span className="search-icon">🔍</span>
           <input
             type="text"
-            placeholder={tab === 'matches' ? 'Cerca tra i match...' : 'Cerca titolo PSN...'}
+            placeholder={tab === 'matches' ? t('sync.searchMatches') : t('sync.searchUnmatched')}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -96,13 +98,13 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
                     checked={onlyBad}
                     onChange={e => setOnlyBad(e.target.checked)}
                   />
-                  Solo sospetti ({suspicious.length})
+                  {t('sync.suspiciousOnly', { n: suspicious.length })}
                 </label>
-                {!onlyBad && <span className="sync-sub">✅ Ok: {good.length} · ⚠️ Sospetti: {suspicious.length}</span>}
+                {!onlyBad && <span className="sync-sub">{t('sync.stats', { ok: good.length, bad: suspicious.length })}</span>}
               </div>
 
               {filteredMatches.length === 0 ? (
-                <div className="sync-empty">Nessun match da mostrare</div>
+                <div className="sync-empty">{t('sync.noMatches')}</div>
               ) : (
                 filteredMatches.map((m, i) => {
                   const bad = isSuspicious(m.psn, m.game);
@@ -119,7 +121,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
                         className="sync-btn-reject"
                         onClick={() => handleReject(m)}
                         disabled={busy === key}
-                        title="Rimuovi questo match"
+                        title={t('sync.removeTitle')}
                       >✗</button>
                     </div>
                   );
@@ -130,7 +132,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
 
           {tab === 'unmatched' && (
             filteredUnmatched.length === 0 ? (
-              <div className="sync-empty">Nessun titolo trovato</div>
+              <div className="sync-empty">{t('sync.noTitles')}</div>
             ) : (
               filteredUnmatched.map((u, i) => (
                 <div key={i} className="sync-row sync-row-unmatched">
@@ -143,7 +145,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
                     value={manualMap[u.title] || ''}
                     onChange={e => setManualMap(m => ({ ...m, [u.title]: e.target.value }))}
                   >
-                    <option value="">— nessun gioco —</option>
+                    <option value="">{t('sync.noGame')}</option>
                     {games.map(g => (
                       <option key={g.id} value={g.id}>{g.title}</option>
                     ))}
@@ -152,7 +154,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
                     className="sync-btn-assign"
                     onClick={() => handleAssign(u, manualMap[u.title])}
                     disabled={!manualMap[u.title] || busy === u.title}
-                    title="Assegna"
+                    title={t('sync.assignTitle')}
                   >✓</button>
                 </div>
               ))
@@ -161,7 +163,7 @@ export default function SyncReviewModal({ syncResult, games, onClose, onRefresh 
         </div>
 
         <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>Chiudi</button>
+          <button className="btn-cancel" onClick={onClose}>{t('sync.close')}</button>
         </div>
       </div>
     </div>

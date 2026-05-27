@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase, envError } from './lib/supabase';
 import { searchGameCovers } from './lib/igdb';
+import { LangProvider, useT } from './lib/i18n';
 import GameGrid from './components/GameGrid';
 import GameModal from './components/GameModal';
 import SyncReviewModal from './components/SyncReviewModal';
@@ -11,35 +12,36 @@ import './App.css';
 
 // ── Config error screen ────────────────────────────────────────────────────
 // Shown when REACT_APP_SUPABASE_* env vars are not set at build time.
-// No hooks — safe to render unconditionally.
+// No data hooks — safe to render unconditionally.
 function EnvErrorScreen() {
+  const { t } = useT();
+  const missingVars = envError ? envError.split(': ').slice(1).join(': ') : '';
+
   return (
     <div className="auth-page">
       <div className="auth-glow" />
       <div className="auth-content">
         <div className="auth-logo">
           <span className="auth-logo-icon">⚙️</span>
-          <h1 className="auth-logo-title">SETUP</h1>
-          <p className="auth-logo-sub">Configurazione richiesta</p>
+          <h1 className="auth-logo-title">{t('env.title')}</h1>
+          <p className="auth-logo-sub">{t('env.subtitle')}</p>
         </div>
         <div className="auth-card">
           <div className="auth-card-body" style={{ gap: 18 }}>
             <div className="auth-msg auth-error">
-              <strong>Variabili d'ambiente mancanti:</strong>
-              <br />{envError.replace("Variabili d'ambiente mancanti: ", '')}
+              <strong>{t('env.subtitle')}:</strong>
+              <br />{missingVars}
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7, margin: 0 }}>
-              Crea il file{' '}
-              <code className="inline-code">.env.local</code>{' '}
-              nella root del progetto:
+              {t('env.createFile')}{' '}
+              <code className="inline-code">.env.local</code>
             </p>
             <pre className="env-error-pre">{`REACT_APP_SUPABASE_URL=https://xxx.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=eyJ...
 REACT_APP_RAWG_KEY=your_rawg_key`}</pre>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
-              Poi riavvia con{' '}
+              {t('env.restart')}{' '}
               <code className="inline-code">npm start</code>
-              {' '}(o rideploya su Vercel con le variabili configurate).
             </p>
           </div>
         </div>
@@ -51,6 +53,8 @@ REACT_APP_RAWG_KEY=your_rawg_key`}</pre>
 // ── Vault (main app — all hooks live here) ────────────────────────────────
 // Only mounted when env vars are present and supabase client is valid.
 function VaultApp() {
+  const { t, lang, setLang } = useT();
+
   // Auth
   const [session, setSession]         = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -125,7 +129,7 @@ function VaultApp() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Sei sicuro di voler eliminare questo gioco?')) return;
+    if (!window.confirm(t('confirm.delete'))) return;
     await supabase.from('games').delete().eq('id', id);
     fetchGames();
   };
@@ -149,8 +153,8 @@ function VaultApp() {
 
   const handleAutoCovers = async () => {
     const missing = games.filter(g => !g.cover_url);
-    if (missing.length === 0) { alert('Tutti i giochi hanno già una copertina!'); return; }
-    if (!window.confirm(`Cerca copertine automaticamente per ${missing.length} giochi senza immagine?`)) return;
+    if (missing.length === 0) { alert(t('alert.noCoversNeeded')); return; }
+    if (!window.confirm(t('confirm.autoCover', { n: missing.length }))) return;
 
     let updated = 0;
     setAutoProgress({ done: 0, total: missing.length, current: missing[0].title });
@@ -166,7 +170,7 @@ function VaultApp() {
     }
     setAutoProgress(null);
     fetchGames();
-    alert(`✅ Aggiornate ${updated} copertine su ${missing.length}!`);
+    alert(t('alert.autoCoverDone', { n: updated, total: missing.length }));
   };
 
   const handleLogout = () => supabase.auth.signOut();
@@ -176,7 +180,7 @@ function VaultApp() {
     return (
       <div className="app">
         <div className="loading" style={{ minHeight: '100vh' }}>
-          <div className="spinner" /><p>Caricamento...</p>
+          <div className="spinner" /><p>{t('app.loading')}</p>
         </div>
       </div>
     );
@@ -187,7 +191,7 @@ function VaultApp() {
   const displayName = session.user.user_metadata?.full_name
     || session.user.user_metadata?.name
     || session.user.email?.split('@')[0]
-    || 'Utente';
+    || 'User';
   const avatarLetter = displayName[0].toUpperCase();
 
   return (
@@ -198,7 +202,7 @@ function VaultApp() {
             <span className="logo-icon">🎮</span>
             <div>
               <h1>GAME VAULT</h1>
-              <p>Alessio's Backlog</p>
+              <p>{t('app.tagline')}</p>
             </div>
           </div>
 
@@ -207,43 +211,50 @@ function VaultApp() {
               className="btn-sync-trophies"
               onClick={handleSyncTrophies}
               disabled={trophySync === 'syncing' || loading}
-              title="Sincronizza trofei PSN da Toshi-_-"
+              title={t('header.syncTitle')}
             >
               {trophySync === 'syncing'
-                ? <>🏆 <span className="btn-label">Sync...</span></>
+                ? <>🏆 <span className="btn-label">{t('header.syncing')}</span></>
                 : trophySync?.error
-                  ? <>❌ <span className="btn-label">Errore</span></>
+                  ? <>❌ <span className="btn-label">{t('header.syncError')}</span></>
                   : trophySync?.updated != null
-                    ? <>✅ <span className="btn-label">{trophySync.updated} sync</span></>
-                    : <>🏆 <span className="btn-label"> Sync Trofei</span></>}
+                    ? <>✅ <span className="btn-label">{t('header.syncDone', { n: trophySync.updated })}</span></>
+                    : <>🏆 <span className="btn-label"> {t('header.syncTrophies')}</span></>}
             </button>
             {syncResult && (
               <button
                 className="btn-review-sync"
                 onClick={() => setSyncReviewOpen(true)}
-                title="Revisiona match e assegna non trovati"
-              >🔍 <span className="btn-label">Revisiona</span></button>
+                title={t('header.reviewTitle')}
+              >🔍 <span className="btn-label">{t('header.review')}</span></button>
             )}
             <button
               className="btn-auto-cover"
               onClick={handleAutoCovers}
               disabled={!!autoProgress || loading}
-              title="Scarica automaticamente le copertine mancanti"
+              title={t('header.autoCoverTitle')}
             >
               {autoProgress
                 ? `🖼 ${autoProgress.done}/${autoProgress.total}`
-                : <>🖼 <span className="btn-label"> Auto-cover</span></>}
+                : <>🖼 <span className="btn-label"> {t('header.autoCover')}</span></>}
             </button>
             <button className="btn-add" onClick={() => { setEditGame(null); setModalOpen(true); }}>
-              <span className="btn-icon">+</span><span className="btn-label"> Aggiungi Gioco</span>
+              <span className="btn-icon">+</span><span className="btn-label"> {t('header.addGame')}</span>
             </button>
           </div>
 
           <div className="header-user">
+            <button
+              className="btn-lang"
+              onClick={() => setLang(lang === 'en' ? 'it' : 'en')}
+              title="Change language"
+            >
+              {lang === 'en' ? '🇮🇹' : '🇬🇧'}
+            </button>
             <div className="user-avatar" title={session.user.email}>{avatarLetter}</div>
             <span className="user-name">{displayName}</span>
-            <button className="btn-logout" onClick={handleLogout} title="Esci dall'account">
-              ⏏<span className="btn-label"> Esci</span>
+            <button className="btn-logout" onClick={handleLogout} title={t('header.signOutTitle')}>
+              ⏏<span className="btn-label"> {t('header.signOut')}</span>
             </button>
           </div>
         </div>
@@ -260,14 +271,14 @@ function VaultApp() {
       <FilterBar filters={filters} setFilters={setFilters} franchises={franchises} platforms={platforms} total={filteredGames.length} />
 
       {loading ? (
-        <div className="loading"><div className="spinner" /><p>Caricamento giochi...</p></div>
+        <div className="loading"><div className="spinner" /><p>{t('app.loadingGames')}</p></div>
       ) : games.length === 0 ? (
         <div className="empty-vault">
           <div className="empty-vault-icon">🎮</div>
-          <h2>Il tuo vault è vuoto!</h2>
-          <p>Benvenuto! Inizia aggiungendo i giochi del tuo backlog.</p>
+          <h2>{t('vault.emptyTitle')}</h2>
+          <p>{t('vault.emptySubtitle')}</p>
           <button className="btn-add empty-vault-cta" onClick={() => { setEditGame(null); setModalOpen(true); }}>
-            <span className="btn-icon">+</span> Aggiungi il tuo primo gioco
+            <span className="btn-icon">+</span> {t('vault.emptyCta')}
           </button>
         </div>
       ) : (
@@ -285,8 +296,12 @@ function VaultApp() {
 }
 
 // ── Root export ────────────────────────────────────────────────────────────
-// Thin wrapper: shows env error screen before mounting any hooks.
+// Thin wrapper: LangProvider must wrap everything so useT() works everywhere,
+// including EnvErrorScreen and AuthPage.
 export default function App() {
-  if (envError) return <EnvErrorScreen />;
-  return <VaultApp />;
+  return (
+    <LangProvider>
+      {envError ? <EnvErrorScreen /> : <VaultApp />}
+    </LangProvider>
+  );
 }
