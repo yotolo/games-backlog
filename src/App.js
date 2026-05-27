@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from './lib/supabase';
+import { supabase, envError } from './lib/supabase';
 import { searchGameCovers } from './lib/igdb';
 import GameGrid from './components/GameGrid';
 import GameModal from './components/GameModal';
@@ -9,18 +9,55 @@ import FilterBar from './components/FilterBar';
 import AuthPage from './components/AuthPage';
 import './App.css';
 
-export default function App() {
-  // ── Auth ────────────────────────────────────────────────────────────────
-  const [session, setSession]       = useState(null);
+// ── Config error screen ────────────────────────────────────────────────────
+// Shown when REACT_APP_SUPABASE_* env vars are not set at build time.
+// No hooks — safe to render unconditionally.
+function EnvErrorScreen() {
+  return (
+    <div className="auth-page">
+      <div className="auth-glow" />
+      <div className="auth-content">
+        <div className="auth-logo">
+          <span className="auth-logo-icon">⚙️</span>
+          <h1 className="auth-logo-title">SETUP</h1>
+          <p className="auth-logo-sub">Configurazione richiesta</p>
+        </div>
+        <div className="auth-card">
+          <div className="auth-card-body" style={{ gap: 18 }}>
+            <div className="auth-msg auth-error">
+              <strong>Variabili d'ambiente mancanti:</strong>
+              <br />{envError.replace("Variabili d'ambiente mancanti: ", '')}
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7, margin: 0 }}>
+              Crea il file{' '}
+              <code className="inline-code">.env.local</code>{' '}
+              nella root del progetto:
+            </p>
+            <pre className="env-error-pre">{`REACT_APP_SUPABASE_URL=https://xxx.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=eyJ...
+REACT_APP_RAWG_KEY=your_rawg_key`}</pre>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
+              Poi riavvia con{' '}
+              <code className="inline-code">npm start</code>
+              {' '}(o rideploya su Vercel con le variabili configurate).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Vault (main app — all hooks live here) ────────────────────────────────
+// Only mounted when env vars are present and supabase client is valid.
+function VaultApp() {
+  // Auth
+  const [session, setSession]         = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  /** Claim any legacy games that have no owner yet (first login migration). */
   const claimUnownedGames = useCallback(async (userId) => {
     try {
-      await supabase
-        .from('games')
-        .update({ user_id: userId })
-        .is('user_id', null);
+      await supabase.from('games').update({ user_id: userId }).is('user_id', null);
     } catch (e) {
       console.warn('Auto-claim skipped:', e);
     }
@@ -39,7 +76,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, [claimUnownedGames]);
 
-  // ── App state ────────────────────────────────────────────────────────────
+  // App state
   const [games, setGames]               = useState([]);
   const [loading, setLoading]           = useState(false);
   const [modalOpen, setModalOpen]       = useState(false);
@@ -50,7 +87,6 @@ export default function App() {
   const [syncResult, setSyncResult]     = useState(null);
   const [syncReviewOpen, setSyncReviewOpen] = useState(false);
 
-  // ── Data fetching ────────────────────────────────────────────────────────
   const fetchGames = useCallback(async () => {
     if (!session) { setGames([]); return; }
     setLoading(true);
@@ -65,7 +101,6 @@ export default function App() {
 
   useEffect(() => { fetchGames(); }, [fetchGames]);
 
-  // ── Derived state ────────────────────────────────────────────────────────
   const filteredGames = games.filter(g => {
     if (filters.status    !== 'all' && g.status !== filters.status) return false;
     if (filters.franchise !== 'all' && g.franchise !== filters.franchise) return false;
@@ -77,11 +112,9 @@ export default function App() {
   const franchises = [...new Set(games.map(g => g.franchise).filter(Boolean))].sort();
   const platforms  = [...new Set(games.flatMap(g => g.platform || []))].sort();
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleSave = async (game) => {
     if (game.id) {
-      // Strip non-updatable fields (incl. user_id — ownership never changes)
-      const { id, created_at, user_id, ...updates } = game;
+      const { id, created_at, user_id, ...updates } = game; // eslint-disable-line no-unused-vars
       await supabase.from('games').update(updates).eq('id', id);
     } else {
       await supabase.from('games').insert([{ ...game, user_id: session.user.id }]);
@@ -138,13 +171,12 @@ export default function App() {
 
   const handleLogout = () => supabase.auth.signOut();
 
-  // ── Auth loading ──────────────────────────────────────────────────────────
+  // Auth loading
   if (authLoading) {
     return (
       <div className="app">
         <div className="loading" style={{ minHeight: '100vh' }}>
-          <div className="spinner" />
-          <p>Caricamento...</p>
+          <div className="spinner" /><p>Caricamento...</p>
         </div>
       </div>
     );
@@ -152,14 +184,12 @@ export default function App() {
 
   if (!session) return <AuthPage />;
 
-  // ── User display info ─────────────────────────────────────────────────────
   const displayName = session.user.user_metadata?.full_name
     || session.user.user_metadata?.name
     || session.user.email?.split('@')[0]
     || 'Utente';
   const avatarLetter = displayName[0].toUpperCase();
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="app">
       <header className="header">
@@ -227,29 +257,16 @@ export default function App() {
       )}
 
       <StatsBar games={games} />
-
-      <FilterBar
-        filters={filters}
-        setFilters={setFilters}
-        franchises={franchises}
-        platforms={platforms}
-        total={filteredGames.length}
-      />
+      <FilterBar filters={filters} setFilters={setFilters} franchises={franchises} platforms={platforms} total={filteredGames.length} />
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner" />
-          <p>Caricamento giochi...</p>
-        </div>
+        <div className="loading"><div className="spinner" /><p>Caricamento giochi...</p></div>
       ) : games.length === 0 ? (
         <div className="empty-vault">
           <div className="empty-vault-icon">🎮</div>
           <h2>Il tuo vault è vuoto!</h2>
           <p>Benvenuto! Inizia aggiungendo i giochi del tuo backlog.</p>
-          <button
-            className="btn-add empty-vault-cta"
-            onClick={() => { setEditGame(null); setModalOpen(true); }}
-          >
+          <button className="btn-add empty-vault-cta" onClick={() => { setEditGame(null); setModalOpen(true); }}>
             <span className="btn-icon">+</span> Aggiungi il tuo primo gioco
           </button>
         </div>
@@ -258,21 +275,18 @@ export default function App() {
       )}
 
       {modalOpen && (
-        <GameModal
-          game={editGame}
-          onSave={handleSave}
-          onClose={() => { setModalOpen(false); setEditGame(null); }}
-        />
+        <GameModal game={editGame} onSave={handleSave} onClose={() => { setModalOpen(false); setEditGame(null); }} />
       )}
-
       {syncReviewOpen && syncResult && (
-        <SyncReviewModal
-          syncResult={syncResult}
-          games={games}
-          onClose={() => setSyncReviewOpen(false)}
-          onRefresh={fetchGames}
-        />
+        <SyncReviewModal syncResult={syncResult} games={games} onClose={() => setSyncReviewOpen(false)} onRefresh={fetchGames} />
       )}
     </div>
   );
+}
+
+// ── Root export ────────────────────────────────────────────────────────────
+// Thin wrapper: shows env error screen before mounting any hooks.
+export default function App() {
+  if (envError) return <EnvErrorScreen />;
+  return <VaultApp />;
 }
