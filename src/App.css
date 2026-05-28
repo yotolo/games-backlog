@@ -1912,7 +1912,12 @@ body {
 .map-import-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .map-import-btn:disabled { opacity: 0.5; cursor: wait; }
 
-/* ── Map Editor shell ───────────────────────────────────────────── */
+
+/* ════════════════════════════════════════════════════════════════════════
+   MAP EDITOR
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shell ──────────────────────────────────────────────────────────── */
 .map-editor {
   display: flex;
   flex-direction: column;
@@ -1920,10 +1925,10 @@ body {
   overflow: hidden;
   background: var(--surface);
   min-height: 0;
-  /* editor fills the entire modal when modal--map is applied */
+  position: relative; /* anchor for fixed children that may not escape modal */
 }
 
-/* ── Toolbar ────────────────────────────────────────────────────── */
+/* ── Toolbar ────────────────────────────────────────────────────────── */
 .map-toolbar {
   display: flex;
   align-items: center;
@@ -1959,7 +1964,7 @@ body {
   transition: background 0.15s;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex: 1;
   min-width: 0;
   white-space: nowrap;
@@ -1968,11 +1973,7 @@ body {
 }
 .map-name:hover { background: rgba(255,255,255,0.06); }
 
-.map-name-edit-icon {
-  font-size: 12px;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
+.map-name-edit-icon { font-size: 12px; opacity: 0.45; }
 
 .map-name-input {
   flex: 1;
@@ -2010,28 +2011,27 @@ body {
   align-items: center;
   gap: 5px;
 }
-.map-toolbar-btn:hover { border-color: var(--accent); }
+.map-toolbar-btn:hover   { border-color: var(--accent); }
 .map-toolbar-btn.active-green { border-color: #4ade80; color: #4ade80; }
-.map-toolbar-btn.busy { opacity: 0.55; cursor: wait; }
+.map-toolbar-btn.busy    { opacity: 0.55; cursor: wait; }
 
-/* ── Body: canvas + sidebar ─────────────────────────────────────── */
+/* ── Body: canvas only, full width ─────────────────────────────────── */
 .map-body {
   display: flex;
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  position: relative; /* needed for .map-fab absolute positioning */
 }
 
-/* ── Canvas area ────────────────────────────────────────────────── */
+/* ── Canvas ─────────────────────────────────────────────────────────── */
 .map-canvas-wrap {
   flex: 1;
   position: relative;
   overflow: hidden;
   background: #0d0a17;
-  cursor: grab;
   user-select: none;
 }
-.map-canvas-wrap:active { cursor: grabbing; }
 
 .map-no-image {
   position: absolute;
@@ -2066,99 +2066,198 @@ body {
   -webkit-user-drag: none;
 }
 
-/* ── Markers ────────────────────────────────────────────────────── */
+/* ── Hint overlay ───────────────────────────────────────────────────── */
+.map-canvas-hint {
+  position: absolute;
+  bottom: 72px; /* above the FAB */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.55);
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Markers ────────────────────────────────────────────────────────── */
 .map-marker {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.8);
   border: 2.5px solid var(--cc, #94a3b8);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.7);
 }
 .map-marker:hover {
-  transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.7);
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.8);
   z-index: 10;
 }
 .map-marker.active {
-  transform: translate(-50%, -50%) scale(1.3);
-  box-shadow: 0 0 0 3px var(--cc, #94a3b8), 0 2px 8px rgba(0,0,0,0.7);
+  transform: translate(-50%, -50%) scale(1.35);
+  box-shadow: 0 0 0 4px var(--cc, #94a3b8), 0 4px 12px rgba(0,0,0,0.8);
   z-index: 20;
 }
 .map-marker.found {
-  opacity: 0.4;
-  filter: grayscale(0.6);
+  opacity: 0.35;
+  filter: grayscale(0.7);
 }
 
 .map-marker-icon {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1;
   pointer-events: none;
 }
 
-/* Pending marker (pulsing ring where user clicked) */
 .map-marker-pending {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 2.5px solid #fff;
   pointer-events: none;
-  animation: pulse-ring 1s ease-out infinite;
+  animation: pulse-ring 0.9s ease-out infinite;
 }
 
 @keyframes pulse-ring {
-  0%   { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
-  70%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.3; }
-  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+  0%   { transform: translate(-50%,-50%) scale(0.85); opacity: 1; }
+  65%  { transform: translate(-50%,-50%) scale(1.55); opacity: 0.2; }
+  100% { transform: translate(-50%,-50%) scale(0.85); opacity: 1; }
 }
 
-/* ── Sidebar ────────────────────────────────────────────────────── */
-.map-sidebar {
-  width: 260px;
+/* ── FAB — floats over the canvas, outside .map-canvas-wrap ─────────── */
+/* position:absolute relative to .map-body (position:relative)           */
+/* being OUTSIDE .map-canvas-wrap means its events never hit the canvas  */
+.map-fab {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  transition: transform 0.2s, background 0.2s;
   flex-shrink: 0;
+}
+.map-fab:hover          { transform: scale(1.1); }
+.map-fab.open           { background: #374151; }
+.map-fab.open:hover     { background: #4b5563; }
+
+.map-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  pointer-events: none;
+}
+
+/* ── Marker list sheet (bottom sheet, fixed, sibling of canvas) ─────── */
+.map-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  /* transparent — just catches clicks to close the sheet */
+}
+
+.map-list-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, 100vw);
+  max-height: 55vh;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  z-index: 110;
   display: flex;
   flex-direction: column;
-  background: var(--surface2);
-  border-left: 1px solid var(--border);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.65);
+  animation: sheetUp 0.22s cubic-bezier(.16,1,.3,1);
   overflow: hidden;
-  transition: width 0.2s ease;
 }
-.map-sidebar.collapsed { width: 0; border-left: none; overflow: hidden; }
 
-/* Marker-add / marker-edit form */
-.map-sb-form {
+@keyframes sheetUp {
+  from { transform: translateX(-50%) translateY(100%); }
+  to   { transform: translateX(-50%) translateY(0); }
+}
+
+.map-sheet-header {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px;
+  padding: 16px 16px 10px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.map-sb-form-title {
-  font-size: 13px;
+.map-sheet-title {
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: var(--text);
 }
 
-.map-cat-row {
+.map-sheet-found {
+  font-size: 13px;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.map-sheet-filters {
   display: flex;
   gap: 6px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.map-cat-btn {
+.map-found-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--surface3, #1e1433);
+  border: 1px solid var(--border);
+  user-select: none;
+  transition: border-color 0.15s;
+}
+.map-found-toggle:hover { border-color: var(--accent); }
+.map-found-toggle input { accent-color: var(--accent); width: 13px; height: 13px; }
+
+.map-fcat {
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -2169,19 +2268,187 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.15s, transform 0.15s;
+  gap: 2px;
+  transition: opacity 0.15s, border-color 0.15s;
+  position: relative;
 }
-.map-cat-btn:hover { transform: scale(1.1); }
-.map-cat-btn.on { border-color: #fff; transform: scale(1.15); }
+.map-fcat.on  { border-color: #fff; opacity: 1; }
+.map-fcat.off { opacity: 0.28; }
+
+.map-fcat-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 9px;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 0 3px;
+  color: var(--text-muted);
+  line-height: 14px;
+  min-width: 14px;
+  text-align: center;
+}
+
+.map-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px 24px;
+}
+
+.map-sheet-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 4px;
+  margin: 0;
+}
+
+/* Marker rows in the list */
+.map-marker-list { display: flex; flex-direction: column; gap: 2px; }
+
+.map-mrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: var(--text);
+}
+.map-mrow:hover  { background: rgba(255,255,255,0.07); }
+.map-mrow.found  { opacity: 0.4; }
+
+.map-mrow-icon { font-size: 17px; flex-shrink: 0; }
+
+.map-mrow-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.map-mrow-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-mrow-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-found-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.map-found-dot:hover { border-color: #4ade80; }
+.map-found-dot.on    { background: #4ade80; border-color: #4ade80; color: #000; font-weight: 800; }
+
+/* ── Add/Edit marker popup ───────────────────────────────────────────
+   position:fixed so it covers the modal and is OUTSIDE the canvas
+   event tree — events here NEVER bubble to .map-canvas-wrap.
+   ─────────────────────────────────────────────────────────────────── */
+.map-marker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(3px);
+}
+
+.map-marker-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.75);
+  animation: cardIn 0.18s cubic-bezier(.16,1,.3,1);
+}
+
+@keyframes cardIn {
+  from { transform: scale(0.92) translateY(12px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+.map-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.map-card-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.map-card-close:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+
+/* Shared form elements used inside the card */
+.map-cat-row  { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.map-cat-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  background: var(--surface3, #1e1433);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+.map-cat-btn:hover { transform: scale(1.12); }
+.map-cat-btn.on    { border-color: #fff; transform: scale(1.18); }
 
 .map-sb-input,
 .map-sb-textarea {
   background: var(--surface3, #1e1433);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 13px;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
   font-family: inherit;
@@ -2190,7 +2457,7 @@ body {
 }
 .map-sb-input:focus,
 .map-sb-textarea:focus { border-color: var(--accent); }
-.map-sb-textarea { resize: vertical; min-height: 60px; }
+.map-sb-textarea { resize: vertical; min-height: 64px; }
 
 .map-found-lbl {
   display: flex;
@@ -2203,255 +2470,164 @@ body {
 }
 .map-found-lbl input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
-.map-sb-actions {
-  display: flex;
-  gap: 8px;
-}
+.map-sb-actions { display: flex; gap: 8px; }
 
 .map-sb-save {
   flex: 1;
   background: var(--accent);
   border: none;
   color: #fff;
-  padding: 8px 0;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 10px 0;
+  border-radius: 9px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
 }
-.map-sb-save:hover { background: var(--accent-hover, #6d28d9); }
+.map-sb-save:hover:not(:disabled)    { background: var(--accent-hover, #6d28d9); }
+.map-sb-save:disabled { opacity: 0.6; cursor: default; }
 
 .map-sb-del {
   background: rgba(239,68,68,0.12);
   border: 1px solid rgba(239,68,68,0.3);
   color: #ef4444;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
 }
-.map-sb-del:hover { background: rgba(239,68,68,0.22); }
+.map-sb-del:hover { background: rgba(239,68,68,0.25); }
 
 .map-sb-cancel {
   background: var(--surface3, #2a1f3d);
   border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s;
 }
 .map-sb-cancel:hover { border-color: var(--accent); color: var(--text); }
 
-/* Filter + marker list section */
-.map-sb-section {
+/* ── Map tab list view (MapTab.js) ──────────────────────────────────── */
+.map-tab-wrap {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.map-sb-list-section {
+  gap: 0;
   flex: 1;
   overflow-y: auto;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding: 20px;
 }
 
-.map-sb-head {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 10px 14px 4px;
-  flex-shrink: 0;
-}
-
-.map-cat-filters {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  padding: 6px 14px 10px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.map-fcat {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background: var(--surface3, #1e1433);
+.map-new-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s, border-color 0.15s;
+  transition: background 0.2s;
 }
-.map-fcat.on { border-color: #fff; opacity: 1; }
-.map-fcat.off { opacity: 0.3; }
+.map-new-btn:hover { background: var(--accent-hover, #6d28d9); }
 
-/* Marker list rows */
-.map-marker-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.map-mrow {
+.map-create-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  font-size: 13px;
-  color: var(--text);
+  padding: 10px 0;
 }
-.map-mrow:hover { background: rgba(255,255,255,0.06); }
-.map-mrow.active { background: rgba(124,58,237,0.18); }
-.map-mrow.found { opacity: 0.45; }
 
-.map-mrow-icon { font-size: 15px; flex-shrink: 0; }
-
-.map-mrow-title {
+.map-name-new-input {
   flex: 1;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.map-found-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  flex-shrink: 0;
-  transition: background 0.2s;
-}
-.map-found-dot.on { background: #4ade80; }
-
-/* ── Canvas hint text ───────────────────────────────────────────── */
-.map-canvas-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.55);
-  color: rgba(255,255,255,0.55);
-  font-size: 12px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-/* ── Floating add/edit popup ────────────────────────────────────── */
-.map-popup {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 246px;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  z-index: 50;
-  box-shadow: 0 8px 36px rgba(0,0,0,0.7);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  /* pointer-events on so inputs work; stopPropagation prevents canvas pan */
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.map-name-new-input:focus { border-color: var(--accent); }
+
+.map-confirm-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
 }
 
-.map-popup-title {
+.map-list { display: flex; flex-direction: column; gap: 8px; }
+
+.map-list-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.map-popup-close {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 14px;
+  gap: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
-  line-height: 1;
-  transition: color 0.15s, background 0.15s;
+  transition: border-color 0.2s, background 0.2s;
 }
-.map-popup-close:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+.map-list-item:hover { border-color: var(--accent); background: var(--surface3, #2a1f3d); }
 
-/* ── Sidebar tweaks ─────────────────────────────────────────────── */
-.map-found-filter { padding: 4px 14px 10px; }
+.map-community-item { cursor: default; }
+.map-community-item:hover { background: var(--surface2); border-color: var(--border); }
 
-.map-sb-list-head {
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
+.map-list-thumb {
+  width: 52px; height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface3, #1e1433);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 20px;
+  border: 1px solid var(--border);
 }
+.map-list-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.map-sb-empty {
-  font-size: 12px;
-  color: var(--text-muted);
-  padding: 4px 14px;
-  margin: 0;
+.map-list-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.map-list-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-list-author { font-size: 12px; color: var(--text-muted); }
+.map-list-badges { display: flex; gap: 6px; }
+
+.map-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: 0.03em; text-transform: uppercase; }
+.map-badge.pub { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+.map-badge.imp { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+
+.map-list-arrow { font-size: 20px; color: var(--text-muted); margin-left: auto; }
+
+.map-import-btn {
+  background: var(--surface3, #2a1f3d);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  white-space: nowrap;
 }
+.map-import-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.map-import-btn:disabled { opacity: 0.5; cursor: wait; }
 
-.map-fcat-count {
-  font-size: 10px;
-  margin-left: 2px;
-  opacity: 0.7;
-}
-
-/* ── Map editor mobile ──────────────────────────────────────────── */
+/* ── Mobile ─────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .map-toolbar { padding: 8px 10px; gap: 6px; }
-  .map-toolbar-btn span { display: none; }
-
-  /* On small screens the sidebar floats as an overlay panel */
-  .map-sidebar {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 40;
-    width: 230px;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.6);
-  }
-  .map-sidebar.collapsed {
-    width: 0;
-    border-left: none;
-    box-shadow: none;
-  }
-
-  /* Popup goes bottom-center on mobile so it doesn't cover the map */
-  .map-popup {
-    top: auto;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-    width: auto;
-  }
-
+  .map-list-sheet { width: 100vw; max-height: 65vh; border-radius: 16px 16px 0 0; }
+  .map-marker-card { border-radius: 14px; }
   .map-tab-wrap { padding: 14px; }
   .map-list-item { padding: 8px 10px; gap: 8px; }
   .map-list-thumb { width: 42px; height: 34px; }
+  .map-canvas-hint { font-size: 11px; bottom: 80px; }
+  .map-fab { bottom: 14px; right: 14px; width: 48px; height: 48px; font-size: 20px; }
 }
