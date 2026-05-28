@@ -333,7 +333,12 @@ function VaultApp() {
       )}
 
       {modalOpen && (
-        <GameModal game={editGame} onSave={handleSave} onClose={() => { setModalOpen(false); setEditGame(null); }} />
+        <GameModal
+          game={editGame}
+          onSave={handleSave}
+          onClose={() => { setModalOpen(false); setEditGame(null); }}
+          userId={session?.user?.id}
+        />
       )}
       {syncReviewOpen && syncResult && (
         <SyncReviewModal syncResult={syncResult} games={games} onClose={() => setSyncReviewOpen(false)} onRefresh={fetchGames} />

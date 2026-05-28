@@ -112,6 +112,23 @@ const T = {
     'modal.sToStart':       '🔜 To start',
     'modal.sBacklog':       '📦 Backlog',
 
+    // Modal tabs
+    'modal.tabInfo':        '🎮 Game Info',
+    'modal.tabNotes':       '📝 Notes & Media',
+
+    // Notes & Media tab
+    'notes.notesLabel':     'Notes',
+    'notes.saving':         '💾 Saving…',
+    'notes.saved':          '✓ Saved',
+    'notes.placeholder':    'Strategies, passwords, coordinates, reminders…',
+    'notes.mediaLabel':     'Screenshots & Media',
+    'notes.uploadBtn':      '📤 Upload images',
+    'notes.uploading':      '⏳ Uploading…',
+    'notes.noMedia':        'No screenshots yet',
+    'notes.maxFiles':       'Max {n} files per game',
+    'notes.confirmDelete':  'Delete this image?',
+    'notes.deleteTitle':    'Delete',
+
     // Sync review
     'sync.title':           '🏆 Trophy Sync Review',
     'sync.matchesTab':      '✅ Matches',
@@ -234,6 +251,23 @@ const T = {
     'modal.sInProgress':    '🎮 In corso',
     'modal.sToStart':       '🔜 Da iniziare',
     'modal.sBacklog':       '📦 Backlog',
+
+    // Modal tabs
+    'modal.tabInfo':        '🎮 Info Gioco',
+    'modal.tabNotes':       '📝 Note & Media',
+
+    // Notes & Media tab
+    'notes.notesLabel':     'Note',
+    'notes.saving':         '💾 Salvataggio…',
+    'notes.saved':          '✓ Salvato',
+    'notes.placeholder':    'Strategie, password, coordinate, promemoria…',
+    'notes.mediaLabel':     'Screenshot & Media',
+    'notes.uploadBtn':      '📤 Carica immagini',
+    'notes.uploading':      '⏳ Caricamento…',
+    'notes.noMedia':        'Nessun file caricato',
+    'notes.maxFiles':       'Max {n} file per gioco',
+    'notes.confirmDelete':  'Eliminare questa immagine?',
+    'notes.deleteTitle':    'Elimina',
 
     // Sync review
     'sync.title':           '🏆 Revisione Sync Trofei',
