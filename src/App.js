@@ -338,6 +338,7 @@ function VaultApp() {
           onSave={handleSave}
           onClose={() => { setModalOpen(false); setEditGame(null); }}
           userId={session?.user?.id}
+          displayName={displayName}
         />
       )}
       {syncReviewOpen && syncResult && (

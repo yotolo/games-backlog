@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { searchGameCovers } from '../lib/igdb';
 import { useT } from '../lib/i18n';
 import GameNotesMedia from './GameNotesMedia';
+import MapTab from './MapTab';
 
 const PLATFORMS = ['PS1', 'PS2', 'PS3', 'PS4', 'PS5', 'PSVR2', 'PC', 'Switch', 'Xbox'];
 
@@ -12,7 +13,7 @@ const DEFAULT_FORM = {
   trophy_percent: null, notes: '', year_completed: null,
 };
 
-export default function GameModal({ game, onSave, onClose, userId }) {
+export default function GameModal({ game, onSave, onClose, userId, displayName }) {
   const { t } = useT();
 
   const [activeTab,     setActiveTab]     = useState('info');
@@ -107,6 +108,12 @@ export default function GameModal({ game, onSave, onClose, userId }) {
               onClick={() => setActiveTab('notes')}
             >
               {t('modal.tabNotes')}
+            </button>
+            <button
+              className={`modal-tab${activeTab === 'maps' ? ' active' : ''}`}
+              onClick={() => setActiveTab('maps')}
+            >
+              {t('modal.tabMaps')}
             </button>
           </div>
         )}
@@ -261,15 +268,22 @@ export default function GameModal({ game, onSave, onClose, userId }) {
           <GameNotesMedia gameId={game.id} userId={userId} />
         )}
 
-        {/* ── Footer ── */}
-        <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>{t('modal.cancel')}</button>
-          {activeTab === 'info' && (
-            <button className="btn-save" onClick={handleSubmit} disabled={saving || !form.title.trim()}>
-              {saving ? t('modal.saving') : game ? t('modal.saveChanges') : t('modal.addGame')}
-            </button>
-          )}
-        </div>
+        {/* ── Tab: Maps ── */}
+        {activeTab === 'maps' && (
+          <MapTab gameId={game.id} userId={userId} displayName={displayName} />
+        )}
+
+        {/* ── Footer (hidden for Maps tab — map editor has its own nav) ── */}
+        {activeTab !== 'maps' && (
+          <div className="modal-footer">
+            <button className="btn-cancel" onClick={onClose}>{t('modal.cancel')}</button>
+            {activeTab === 'info' && (
+              <button className="btn-save" onClick={handleSubmit} disabled={saving || !form.title.trim()}>
+                {saving ? t('modal.saving') : game ? t('modal.saveChanges') : t('modal.addGame')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

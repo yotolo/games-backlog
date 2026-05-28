@@ -115,6 +115,7 @@ const T = {
     // Modal tabs
     'modal.tabInfo':        '🎮 Game Info',
     'modal.tabNotes':       '📝 Notes & Media',
+    'modal.tabMaps':        '🗺️ Maps',
 
     // Notes & Media tab
     'notes.notesLabel':     'Notes',
@@ -128,6 +129,35 @@ const T = {
     'notes.maxFiles':       'Max {n} files per game',
     'notes.confirmDelete':  'Delete this image?',
     'notes.deleteTitle':    'Delete',
+
+    // Map editor
+    'map.myMaps':       'My Maps',
+    'map.newMap':       'New Map',
+    'map.namePh':       'Map name…',
+    'map.create':       'Create',
+    'map.noMaps':       'No maps yet — create one!',
+    'map.defaultName':  'My Map',
+    'map.public':       'Public',
+    'map.imported':     'Community',
+    'map.community':    'Community Maps',
+    'map.import':       '↓ Import',
+    'map.back':         'Back',
+    'map.resetView':    'Reset view',
+    'map.clickRename':  'Click to rename',
+    'map.noImage':      'No map image yet',
+    'map.uploadImage':  'Upload map image',
+    'map.addMarker':    'Add Marker',
+    'map.editMarker':   'Edit Marker',
+    'map.markerTitle':  'Title…',
+    'map.markerDesc':   'Description…',
+    'map.markFound':    'Mark as found',
+    'map.unmarkFound':  'Unmark found',
+    'map.save':         'Save',
+    'map.filters':      'Filters',
+    'map.showFound':    'Show found',
+    'map.markers':      'Markers',
+    'map.clickToAdd':   'Click on the map to add a marker',
+    'map.uploadFirst':  'Upload a map image first',
 
     // Sync review
     'sync.title':           '🏆 Trophy Sync Review',
@@ -255,6 +285,7 @@ const T = {
     // Modal tabs
     'modal.tabInfo':        '🎮 Info Gioco',
     'modal.tabNotes':       '📝 Note & Media',
+    'modal.tabMaps':        '🗺️ Mappe',
 
     // Notes & Media tab
     'notes.notesLabel':     'Note',
@@ -268,6 +299,35 @@ const T = {
     'notes.maxFiles':       'Max {n} file per gioco',
     'notes.confirmDelete':  'Eliminare questa immagine?',
     'notes.deleteTitle':    'Elimina',
+
+    // Map editor
+    'map.myMaps':       'Le mie mappe',
+    'map.newMap':       'Nuova mappa',
+    'map.namePh':       'Nome mappa…',
+    'map.create':       'Crea',
+    'map.noMaps':       'Nessuna mappa — creane una!',
+    'map.defaultName':  'Mia Mappa',
+    'map.public':       'Pubblica',
+    'map.imported':     'Community',
+    'map.community':    'Mappe Community',
+    'map.import':       '↓ Importa',
+    'map.back':         'Indietro',
+    'map.resetView':    'Reimposta vista',
+    'map.clickRename':  'Clicca per rinominare',
+    'map.noImage':      'Nessuna immagine caricata',
+    'map.uploadImage':  'Carica immagine mappa',
+    'map.addMarker':    'Aggiungi Marker',
+    'map.editMarker':   'Modifica Marker',
+    'map.markerTitle':  'Titolo…',
+    'map.markerDesc':   'Descrizione…',
+    'map.markFound':    'Segna come trovato',
+    'map.unmarkFound':  'Rimuovi trovato',
+    'map.save':         'Salva',
+    'map.filters':      'Filtri',
+    'map.showFound':    'Mostra trovati',
+    'map.markers':      'Marker',
+    'map.clickToAdd':   'Clicca sulla mappa per aggiungere un marker',
+    'map.uploadFirst':  'Prima carica un\'immagine della mappa',
 
     // Sync review
     'sync.title':           '🏆 Revisione Sync Trofei',
