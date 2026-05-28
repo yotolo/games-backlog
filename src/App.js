@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, envError } from './lib/supabase';
 import { searchGameCovers } from './lib/igdb';
 import { LangProvider, useT } from './lib/i18n';
@@ -124,6 +124,8 @@ function VaultApp() {
   // App state
   const [games, setGames]               = useState([]);
   const [loading, setLoading]           = useState(false);
+  const [gamesError, setGamesError]     = useState(null);
+  const fetchGenRef                      = useRef(0); // generation counter — discards stale/superseded fetches
   const [modalOpen, setModalOpen]       = useState(false);
   const [editGame, setEditGame]         = useState(null);
   const [filters, setFilters]           = useState({ status: 'all', franchise: 'all', platform: 'all', search: '' });
@@ -134,19 +136,51 @@ function VaultApp() {
 
   const fetchGames = useCallback(async () => {
     if (!session) { setGames([]); return; }
+
+    // ── Generation counter ─────────────────────────────────────────────────
+    // Every call gets a unique generation id. If a newer call starts while
+    // this one is in flight, the newer call increments the counter; when
+    // this one resolves it sees its gen no longer matches and discards the
+    // result without touching loading/error state.
+    const gen = ++fetchGenRef.current;
     setLoading(true);
+    setGamesError(null);
+
+    // ── 10-second hard timeout ─────────────────────────────────────────────
+    const timer = setTimeout(() => {
+      if (fetchGenRef.current !== gen) return; // already superseded
+      console.warn('[Games] fetch timed out after 10 s (gen', gen, ')');
+      setLoading(false);
+      setGamesError('Connection timed out — check your network and try again.');
+    }, 10000);
+
     try {
       const { data, error } = await supabase
         .from('games')
         .select('*')
         .order('franchise', { ascending: true })
         .order('title',    { ascending: true });
-      if (error) console.error('fetchGames error:', error);
-      else setGames(data || []);
+
+      clearTimeout(timer);
+      if (fetchGenRef.current !== gen) return; // superseded by newer call
+
+      if (error) {
+        console.error('[Games] fetch error (gen', gen, '):', error);
+        setGamesError(error.message);
+        setGames([]);
+      } else {
+        console.log('[Games] loaded', data?.length ?? 0, 'games (gen', gen, ')');
+        setGames(data || []);
+      }
     } catch (e) {
-      console.error('fetchGames exception:', e);
+      clearTimeout(timer);
+      if (fetchGenRef.current !== gen) return;
+      console.error('[Games] fetch exception (gen', gen, '):', e);
+      setGamesError(e.message || 'Unexpected error loading games');
+      setGames([]);
     } finally {
-      setLoading(false);
+      clearTimeout(timer);
+      if (fetchGenRef.current === gen) setLoading(false);
     }
   }, [session]);
 
@@ -319,6 +353,13 @@ function VaultApp() {
 
       {loading ? (
         <div className="loading"><div className="spinner" /><p>{t('app.loadingGames')}</p></div>
+      ) : gamesError ? (
+        <div className="loading">
+          <p style={{ color: 'var(--red)', margin: 0, textAlign: 'center' }}>⚠️ {gamesError}</p>
+          <button className="btn-save" style={{ marginTop: 14 }} onClick={fetchGames}>
+            🔄 {t('app.retry')}
+          </button>
+        </div>
       ) : games.length === 0 ? (
         <div className="empty-vault">
           <div className="empty-vault-icon">🎮</div>

@@ -10,6 +10,7 @@ const T = {
     'app.tagline':          "Alessio's Backlog",
     'app.loading':          'Loading...',
     'app.loadingGames':     'Loading games...',
+    'app.retry':            'Retry',
 
     // Header
     'header.syncTrophies':  'Sync Trophies',
@@ -180,6 +181,7 @@ const T = {
     'app.tagline':          "Alessio's Backlog",
     'app.loading':          'Caricamento...',
     'app.loadingGames':     'Caricamento giochi...',
+    'app.retry':            'Riprova',
 
     // Header
     'header.syncTrophies':  'Sync Trofei',
