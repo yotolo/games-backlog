@@ -1516,6 +1516,18 @@ body {
   color: var(--purple);
 }
 
+/* ── Fullscreen modal variant for Maps tab ──────────────────────── */
+.modal-overlay--map {
+  padding: 6px;
+}
+
+.modal--map {
+  max-width: 98vw;
+  max-height: 97vh;
+  width:      98vw;
+  height:     97vh;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MODAL TABS
 ═══════════════════════════════════════════════════════════════ */
@@ -1908,6 +1920,7 @@ body {
   overflow: hidden;
   background: var(--surface);
   min-height: 0;
+  /* editor fills the entire modal when modal--map is applied */
 }
 
 /* ── Toolbar ────────────────────────────────────────────────────── */
@@ -2117,9 +2130,9 @@ body {
   background: var(--surface2);
   border-left: 1px solid var(--border);
   overflow: hidden;
-  transition: width 0.25s;
+  transition: width 0.2s ease;
 }
-.map-sidebar.collapsed { width: 0; border-left: none; }
+.map-sidebar.collapsed { width: 0; border-left: none; overflow: hidden; }
 
 /* Marker-add / marker-edit form */
 .map-sb-form {
@@ -2330,13 +2343,114 @@ body {
 }
 .map-found-dot.on { background: #4ade80; }
 
+/* ── Canvas hint text ───────────────────────────────────────────── */
+.map-canvas-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.55);
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Floating add/edit popup ────────────────────────────────────── */
+.map-popup {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 246px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  z-index: 50;
+  box-shadow: 0 8px 36px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* pointer-events on so inputs work; stopPropagation prevents canvas pan */
+}
+
+.map-popup-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.map-popup-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.map-popup-close:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+
+/* ── Sidebar tweaks ─────────────────────────────────────────────── */
+.map-found-filter { padding: 4px 14px 10px; }
+
+.map-sb-list-head {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.map-sb-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 14px;
+  margin: 0;
+}
+
+.map-fcat-count {
+  font-size: 10px;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
 /* ── Map editor mobile ──────────────────────────────────────────── */
 @media (max-width: 600px) {
   .map-toolbar { padding: 8px 10px; gap: 6px; }
-  .map-toolbar-btn span,
-  .map-back-btn span { display: none; }
-  .map-sidebar { width: 220px; }
-  .map-sidebar.collapsed { width: 0; }
+  .map-toolbar-btn span { display: none; }
+
+  /* On small screens the sidebar floats as an overlay panel */
+  .map-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 40;
+    width: 230px;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.6);
+  }
+  .map-sidebar.collapsed {
+    width: 0;
+    border-left: none;
+    box-shadow: none;
+  }
+
+  /* Popup goes bottom-center on mobile so it doesn't cover the map */
+  .map-popup {
+    top: auto;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+
   .map-tab-wrap { padding: 14px; }
   .map-list-item { padding: 8px 10px; gap: 8px; }
   .map-list-thumb { width: 42px; height: 34px; }

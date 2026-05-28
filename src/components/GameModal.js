@@ -85,8 +85,8 @@ export default function GameModal({ game, onSave, onClose, userId, displayName }
   const showTabs = Boolean(game?.id);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+    <div className={`modal-overlay${activeTab === 'maps' ? ' modal-overlay--map' : ''}`} onClick={onClose}>
+      <div className={`modal${activeTab === 'maps' ? ' modal--map' : ''}`} onClick={e => e.stopPropagation()}>
 
         {/* ── Header ── */}
         <div className="modal-header">
