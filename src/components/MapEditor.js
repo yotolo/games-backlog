@@ -5,12 +5,12 @@ import { useT } from '../lib/i18n';
 const BUCKET = 'game-maps';
 
 export const CATEGORIES = [
-  { id: 'main',   icon: '🔴', color: '#ef4444', label: 'Main'        },
-  { id: 'side',   icon: '🟡', color: '#facc15', label: 'Side'        },
-  { id: 'coll',   icon: '🟢', color: '#4ade80', label: 'Collectible' },
-  { id: 'poi',    icon: '🔵', color: '#60a5fa', label: 'POI'         },
-  { id: 'secret', icon: '🟣', color: '#a78bfa', label: 'Secret'      },
-  { id: 'custom', icon: '⚪', color: '#94a3b8', label: 'Custom'      },
+  { id: 'main',   icon: '🔴', sym: '★', color: '#ef4444', label: 'Main'        },
+  { id: 'side',   icon: '🟡', sym: '!',  color: '#facc15', label: 'Side'        },
+  { id: 'coll',   icon: '🟢', sym: '◆', color: '#4ade80', label: 'Collectible' },
+  { id: 'poi',    icon: '🔵', sym: 'i',  color: '#60a5fa', label: 'POI'         },
+  { id: 'secret', icon: '🟣', sym: '?',  color: '#a78bfa', label: 'Secret'      },
+  { id: 'custom', icon: '⚪', sym: '+',  color: '#94a3b8', label: 'Custom'      },
 ];
 
 const CAT      = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
@@ -368,7 +368,9 @@ export default function MapEditor({ map, userId, onBack, onUpdate }) {
                       style={{ left: `${m.x}%`, top: `${m.y}%`, '--cc': cat.color }}
                       title={m.title || cat.label}
                       onClick={e => { e.stopPropagation(); openEdit(m); }}>
-                      <span className="map-marker-icon">{cat.icon}</span>
+                      <div className="map-pin-head">
+                        <span className="map-marker-sym">{cat.sym}</span>
+                      </div>
                     </div>
                   );
                 })}
