@@ -64,6 +64,24 @@
   --t-slow:   0.25s;
 }
 
+/* ── Semantic type utility classes (from design system colors_and_type.css) ── */
+.t-wordmark {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 700; letter-spacing: 4px; line-height: 1;
+  background: var(--grad-logo);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.t-h1 { font-family: var(--font-display); font-size: 38px; font-weight: 700; letter-spacing: 6px; line-height: 1; }
+.t-h2 { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+.t-stat { font-family: var(--font-display); font-size: 26px; font-weight: 700; line-height: 1; }
+.t-card-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; line-height: 1.2; }
+.t-button { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.t-body { font-family: var(--font-body); font-size: 14px; font-weight: 400; line-height: 1.65; color: var(--text); }
+.t-small { font-family: var(--font-body); font-size: 13px; font-weight: 400; color: var(--text-muted); }
+.t-label { font-family: var(--font-body); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+.t-overline { font-family: var(--font-body); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+.t-mono { font-family: var(--font-mono); font-size: 12px; color: var(--purple); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { overflow-x: hidden; }
@@ -71,7 +89,7 @@ html, body { overflow-x: hidden; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   min-height: 100vh;
 }
 
@@ -215,7 +233,7 @@ body {
   border: none;
   color: var(--text-muted);
   padding: 12px 16px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -235,7 +253,7 @@ body {
   font-size: 12px;
   padding: 1px 7px;
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-weight: 500;
 }
 
@@ -245,7 +263,7 @@ body {
   color: var(--yellow);
   padding: 1px 7px;
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
 .sync-search-bar {
@@ -332,7 +350,7 @@ body {
 .sync-row-warn:hover { background: rgba(250,204,21,0.08); }
 
 .sync-pct {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
   color: var(--yellow);
@@ -527,7 +545,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
   color: var(--green);
@@ -535,7 +553,7 @@ body {
 
 .completion-info strong {
   display: block;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
@@ -564,7 +582,7 @@ body {
 }
 
 .stat-emoji { font-size: 18px; }
-.stat-count { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; line-height: 1; }
+.stat-count { font-family: var(--font-display); font-size: 26px; font-weight: 700; line-height: 1; }
 .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
 /* FILTER BAR */
@@ -755,7 +773,7 @@ body {
 }
 
 .card-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-display);
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
@@ -998,7 +1016,7 @@ body {
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -1395,7 +1413,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
 .btn-google:hover {
@@ -1665,7 +1683,7 @@ body {
   padding: 12px 14px;
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   resize: vertical;
   min-height: 150px;
   outline: none;
