@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Game Vault</string>
+    <string name="title_activity_main">Game Vault</string>
+    <string name="package_name">com.yotolo.gamevault</string>
+    <string name="custom_url_scheme">com.yotolo.gamevault</string>
+</resources>

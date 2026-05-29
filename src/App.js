@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, envError } from './lib/supabase';
+import { setupBackButton } from './lib/capacitor';
 import { searchGameCovers } from './lib/igdb';
 import { LangProvider, useT } from './lib/i18n';
 import GameGrid from './components/GameGrid';
@@ -255,6 +256,17 @@ function VaultApp() {
   };
 
   const handleLogout = () => supabase.auth.signOut();
+
+  // Android hardware back button — close open modals before minimising the app
+  useEffect(() => {
+    let cleanup = () => {};
+    setupBackButton(({ canGoBack }) => {
+      if (syncReviewOpen) { setSyncReviewOpen(false); return true; }
+      if (modalOpen)      { setModalOpen(false); setEditGame(null); return true; }
+      return false; // let Capacitor minimise the app
+    }).then(fn => { cleanup = fn; });
+    return () => cleanup();
+  }, [modalOpen, syncReviewOpen]);
 
   // Auth loading
   if (authLoading) {

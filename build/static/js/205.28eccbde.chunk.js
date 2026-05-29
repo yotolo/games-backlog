@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkgames_backlog=self.webpackChunkgames_backlog||[]).push([[205],{205(e,p,s){s.d(p,{App:()=>b});const b=(0,s(403).F3)("App",{web:()=>s.e(551).then(s.bind(s,551)).then(e=>new e.AppWeb)})}}]);
+//# sourceMappingURL=205.28eccbde.chunk.js.map

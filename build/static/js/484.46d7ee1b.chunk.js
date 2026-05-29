@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkgames_backlog=self.webpackChunkgames_backlog||[]).push([[484],{484(s,e,a){a.d(e,{SplashScreenWeb:()=>h});var c=a(403);class h extends c.E_{async show(s){}async hide(s){}}}}]);
+//# sourceMappingURL=484.46d7ee1b.chunk.js.map

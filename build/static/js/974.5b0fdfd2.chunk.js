@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkgames_backlog=self.webpackChunkgames_backlog||[]).push([[974],{974(e,s,n){n.d(s,{SplashScreen:()=>a});const a=(0,n(403).F3)("SplashScreen",{web:()=>n.e(484).then(n.bind(n,484)).then(e=>new e.SplashScreenWeb)})}}]);
+//# sourceMappingURL=974.5b0fdfd2.chunk.js.map
