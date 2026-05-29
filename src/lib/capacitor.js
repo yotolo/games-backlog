@@ -13,8 +13,10 @@ export async function initStatusBar() {
   if (!isNative) return;
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
-    await StatusBar.setStyle({ style: Style.Dark });
+    // Must be called before setStyle/setBackgroundColor
+    await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setBackgroundColor({ color: '#0d0d1a' });
+    await StatusBar.setStyle({ style: Style.Dark });
   } catch (e) {
     console.warn('[Capacitor] StatusBar init failed:', e);
   }

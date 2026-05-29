@@ -97,7 +97,10 @@ body {
 .header {
   background: var(--grad-header);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
+  /* Left/right padding stays 24px; top padding absorbs the safe-area notch /
+     status-bar height when the WebView overlays it (overlaysWebView:true iOS,
+     or as a belt-and-suspenders on Android). Zero on most Android configs. */
+  padding: env(safe-area-inset-top) 24px 0;
   position: sticky;
   top: 0;
   z-index: 100;

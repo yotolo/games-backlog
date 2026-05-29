@@ -30,8 +30,9 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     StatusBar: {
-      style: 'Dark',           // dark icons — our bg is near-black so we want light text
+      style: 'Dark',            // light status-bar text/icons on our near-black background
       backgroundColor: '#0d0d1a',
+      overlaysWebView: false,   // status bar sits ABOVE the WebView; no overlap
     },
   },
 };
