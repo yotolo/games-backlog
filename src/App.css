@@ -91,16 +91,17 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   min-height: 100vh;
+  /* Push the entire document below the native status bar.
+     env(safe-area-inset-top) is the status-bar height when the WebView
+     extends behind it; 0 when overlaysWebView:false takes effect. */
+  padding-top: env(safe-area-inset-top);
 }
 
 /* HEADER */
 .header {
   background: var(--grad-header);
   border-bottom: 1px solid var(--border);
-  /* Left/right padding stays 24px; top padding absorbs the safe-area notch /
-     status-bar height when the WebView overlays it (overlaysWebView:true iOS,
-     or as a belt-and-suspenders on Android). Zero on most Android configs. */
-  padding: env(safe-area-inset-top) 24px 0;
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: 100;
